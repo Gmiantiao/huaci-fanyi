@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, height=800">
+<title>页面高亮 · 温故知新</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { width:1280px; height:800px; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif; background:linear-gradient(135deg,#1a0a2e,#2d1b4e,#1a0a2e); display:flex; align-items:center; justify-content:center; }
+.card { width:1100px; padding:80px 100px; background:rgba(255,255,255,0.04); border-radius:24px; border:1px solid rgba(255,255,255,0.08); }
+.badge { display:inline-block; padding:6px 16px; background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24; border-radius:20px; font-size:14px; margin-bottom:24px; }
+h1 { font-size:52px; color:#fff; font-weight:700; margin-bottom:16px; letter-spacing:2px; }
+h1 span { color:#f59e0b; }
+.sub { font-size:20px; color:#a0a0c0; margin-bottom:48px; line-height:1.6; }
+.demo-area { display:flex; gap:40px; }
+.page-demo { flex:1; background:#1a1a2e; border-radius:14px; border:1px solid rgba(255,255,255,0.08); padding:32px; overflow:hidden; }
+.page-demo p { color:#c8c8d8; font-size:16px; line-height:2.2; }
+.hl { text-decoration:underline; text-decoration-color:#7C3AED; text-decoration-thickness:2px; text-underline-offset:3px; cursor:pointer; padding:1px 0; }
+.hl:hover { background:rgba(124,58,237,0.12); }
+.tooltip { position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); background:#f0f0ff; color:#1a1a2e; font-size:12px; padding:5px 12px; border-radius:6px; white-space:nowrap; pointer-events:none; }
+.tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:#f0f0ff; }
+.popup-demo { flex:0 0 280px; background:#1e1e3a; border-radius:12px; border:1px solid rgba(124,58,237,0.25); overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.3); }
+.popup-header { padding:14px 16px 4px; display:flex; gap:8px; align-items:baseline; }
+.popup-word { font-size:16px; font-weight:700; color:#fff; }
+.popup-phonetic { font-size:12px; color:#888; font-style:italic; }
+.popup-trans { padding:6px 16px 10px; font-size:13px; color:#c8c8d8; }
+.popup-note { padding:2px 16px 8px; font-size:11px; color:#f59e0b; background:rgba(245,158,11,0.08); margin:0 16px 8px; border-radius:4px; }
+.popup-footer { padding:6px 12px; display:flex; gap:6px; justify-content:flex-end; border-top:1px solid rgba(255,255,255,0.06); }
+.popup-btn { width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05); border:none; }
+.star-btn { color:#7C3AED; }
+.note-btn { color:#f59e0b; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="badge">核心功能</div>
+  <h1><span>页面高亮</span> · 温故知新</h1>
+  <p class="sub">收藏的词汇自动在页面上高亮标记。<br>鼠标悬停查看翻译，点击弹出完整信息，随时温习。</p>
+  <div class="demo-area">
+    <div class="page-demo" style="position:relative;">
+      <p>
+        The <span class="hl">quintessential</span> aspect of modern software engineering is not just writing code, but understanding the <span class="hl" style="position:relative;">ecosystem
+        <div class="tooltip">生态系统</div>
+        </span> in which it operates. From <span class="hl">containerization</span> to <span class="hl">orchestration</span>, the landscape has evolved <span class="hl">drastically</span> over the past decade.
+      </p>
+      <p>
+        Developers must now <span class="hl">grapple</span> with distributed systems, <span class="hl">immutable</span> infrastructure, and the <span class="hl">ephemeral</span> nature of cloud resources.
+      </p>
+      <p style="margin-top:12px;">
+        <span class="hl">浏览即拾词</span> — 在网页中划选英文或中文即可翻译收藏。已收藏的词汇会自动以紫色下划线<span class="hl">高亮</span>标记，帮助你<span class="hl">温故知新</span>。
+      </p>
+      <p style="margin-top:12px; font-size:14px; color:#666;">
+        鼠标悬停 → 显示翻译 · 点击高亮词 → 查看详情 & 取消收藏
+      </p>
+    </div>
+    <div class="popup-demo">
+      <div class="popup-header">
+        <span class="popup-word">quintessential</span>
+        <span class="popup-phonetic">/ˌkwɪntɪˈsenʃəl/</span>
+      </div>
+      <div class="popup-trans">典型的，精华的；最本质的</div>
+      <div class="popup-note">GRE 核心词汇</div>
+      <div class="popup-footer">
+        <div class="popup-btn star-btn">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div class="popup-btn note-btn">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

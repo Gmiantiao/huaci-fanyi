@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, height=800">
+<title>划词即译 · 中英互通</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { width:1280px; height:800px; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif; background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); display:flex; align-items:center; justify-content:center; }
+.card { width:1100px; padding:80px 100px; background:rgba(255,255,255,0.06); border-radius:24px; border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px); }
+.badge { display:inline-block; padding:6px 16px; background:rgba(124,58,237,0.2); border:1px solid #7C3AED; color:#a78bfa; border-radius:20px; font-size:14px; margin-bottom:24px; }
+h1 { font-size:52px; color:#fff; font-weight:700; margin-bottom:16px; letter-spacing:2px; }
+h1 span { color:#7C3AED; }
+.sub { font-size:20px; color:#a0a0c0; margin-bottom:48px; line-height:1.6; }
+.demo-area { display:flex; gap:60px; align-items:flex-start; }
+.text-column { flex:1; }
+.text-block { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:24px; margin-bottom:16px; color:#ccc; font-size:16px; line-height:1.8; position:relative; }
+.text-block .highlight { background:rgba(124,58,237,0.25); border-radius:4px; padding:2px 6px; color:#c4b5fd; border-bottom:2px solid #7C3AED; }
+.popup-demo { flex:0 0 320px; background:#1e1e3a; border-radius:12px; border:1px solid rgba(124,58,237,0.3); overflow:hidden; box-shadow:0 12px 40px rgba(124,58,237,0.2); }
+.popup-header { padding:14px 18px 6px; display:flex; gap:8px; align-items:baseline; }
+.popup-word { font-size:18px; font-weight:700; color:#fff; }
+.popup-phonetic { font-size:13px; color:#888; font-style:italic; }
+.popup-trans { padding:6px 18px 10px; font-size:14px; color:#c8c8d8; line-height:1.5; }
+.popup-footer { padding:8px 16px; display:flex; gap:6px; justify-content:flex-end; border-top:1px solid rgba(255,255,255,0.06); }
+.popup-btn { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05); border:none; cursor:default; }
+.star-btn { color:#7C3AED; }
+.arrow-bubble { position:absolute; bottom:calc(100% + 12px); left:50%; transform:translateX(-50%); background:#1e1e3a; color:#fff; padding:6px 12px; border-radius:6px; font-size:12px; white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="badge">核心功能</div>
+  <h1><span>划词即译</span> · 中英互通</h1>
+  <p class="sub">任意网页选中文字，毫秒级翻译。<br>英文翻中文，中文翻英文，双向切换无压力。</p>
+  <div class="demo-area">
+    <div class="text-column">
+      <div class="text-block">
+        浏览即拾词 — <span class="highlight">划词翻译</span>、收藏注释、高亮复习，中英双语皆是养分。这是面向中英文双语学习者和技术阅读者的浏览辅助工具。
+      </div>
+      <div class="text-block">
+        The quick brown fox <span class="highlight">jumps over</span> the <span class="highlight">lazy dog</span>. This is a classic pangram that contains every letter of the English alphabet.
+      </div>
+      <div class="text-block" style="font-size:20px; text-align:center; color:#888;">
+        🖱️ 选中任意文字 →
+      </div>
+    </div>
+    <div class="popup-demo" style="position:relative;">
+      <div class="popup-header">
+        <span class="popup-word">jumps over</span>
+        <span class="popup-phonetic">/dʒʌmps ˈoʊvər/</span>
+      </div>
+      <div class="popup-trans">跳过；越过；超越</div>
+      <div class="popup-footer">
+        <div class="popup-btn star-btn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div class="popup-btn" style="color:#a78bfa;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

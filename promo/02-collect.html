@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, height=800">
+<title>一键收藏 · 随心注释</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { width:1280px; height:800px; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif; background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); display:flex; align-items:center; justify-content:center; }
+.card { width:1100px; padding:80px 100px; background:rgba(255,255,255,0.06); border-radius:24px; border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px); }
+.badge { display:inline-block; padding:6px 16px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#6ee7b7; border-radius:20px; font-size:14px; margin-bottom:24px; }
+h1 { font-size:52px; color:#fff; font-weight:700; margin-bottom:16px; letter-spacing:2px; }
+h1 span { color:#10b981; }
+.sub { font-size:20px; color:#a0a0c0; margin-bottom:48px; line-height:1.6; }
+.demo-area { display:flex; gap:60px; align-items:flex-start; }
+.col { flex:1; }
+.col label { font-size:14px; color:#888; margin-bottom:8px; display:block; }
+.list-card { background:#1e1e3a; border-radius:14px; border:1px solid rgba(255,255,255,0.08); overflow:hidden; }
+.word-row { display:flex; align-items:center; padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.15s; }
+.word-row:hover { background:rgba(16,185,129,0.04); }
+.w-check { flex-shrink:0; margin-right:12px; }
+.w-check-box { width:18px; height:18px; border:2px solid #555; border-radius:4px; }
+.w-check-box.checked { background:#10b981; border-color:#10b981; }
+.w-info { flex:1; min-width:0; }
+.w-word { font-size:15px; font-weight:600; color:#e8e8f0; }
+.w-word a { color:#a78bfa; text-decoration:none; }
+.w-trans { font-size:13px; color:#888; margin-top:2px; }
+.w-meta { display:flex; gap:8px; margin-top:4px; }
+.w-source { font-size:10px; color:#666; }
+.w-note { font-size:10px; color:#10b981; background:rgba(16,185,129,0.08); padding:1px 6px; border-radius:3px; }
+.w-del { font-size:18px; color:#555; cursor:pointer; flex-shrink:0; margin-left:8px; }
+.stats { display:flex; gap:32px; margin-bottom:24px; }
+.stat { text-align:center; }
+.stat-val { font-size:28px; font-weight:700; color:#10b981; }
+.stat-label { font-size:12px; color:#666; }
+.features { display:flex; gap:12px; margin-top:16px; }
+.f-chip { display:flex; align-items:center; gap:6px; padding:8px 14px; background:rgba(255,255,255,0.05); border-radius:20px; font-size:13px; color:#a0a0c0; }
+.f-chip .dot { width:6px; height:6px; border-radius:50%; }
+.f-chip .dot.g { background:#10b981; }
+.f-chip .dot.p { background:#7C3AED; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="badge">核心功能</div>
+  <h1><span>一键收藏</span> · 随心注释</h1>
+  <p class="sub">翻译结果一键收藏，添加最多30字个性化注释。<br>词汇、音标、来源、注释，信息一应俱全。</p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-val">12</div><div class="stat-label">已收藏</div></div>
+    <div class="stat"><div class="stat-val">5</div><div class="stat-label">本周新增</div></div>
+  </div>
+
+  <div class="demo-area">
+    <div class="col" style="flex:1.2;">
+      <label>📝 收藏列表</label>
+      <div class="list-card">
+        <div class="word-row">
+          <div class="w-check"><div class="w-check-box"></div></div>
+          <div class="w-info">
+            <div class="w-word"><a>ubiquitous</a></div>
+            <div class="w-trans">无处不在的</div>
+            <div class="w-meta"><span class="w-source">medium.com</span><span class="w-note">高频词</span></div>
+          </div>
+          <div class="w-del">×</div>
+        </div>
+        <div class="word-row" style="background:rgba(16,185,129,0.03);">
+          <div class="w-check"><div class="w-check-box checked"></div></div>
+          <div class="w-info">
+            <div class="w-word">paradigm shift</div>
+            <div class="w-trans">范式转移</div>
+            <div class="w-meta"><span class="w-source">arxiv.org</span><span class="w-note">论文关键词</span></div>
+          </div>
+          <div class="w-del">×</div>
+        </div>
+        <div class="word-row">
+          <div class="w-check"><div class="w-check-box"></div></div>
+          <div class="w-info">
+            <div class="w-word">划词翻译</div>
+            <div class="w-trans">Word picker translation</div>
+            <div class="w-meta"><span class="w-source">github.com</span></div>
+          </div>
+          <div class="w-del">×</div>
+        </div>
+        <div class="word-row">
+          <div class="w-check"><div class="w-check-box"></div></div>
+          <div class="w-info">
+            <div class="w-word">ephemeral</div>
+            <div class="w-trans">短暂的，朝生暮死的</div>
+            <div class="w-meta"><span class="w-source">nytimes.com</span><span class="w-note">写作积累</span></div>
+          </div>
+          <div class="w-del">×</div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:10px;background:#1e1e3a;border-radius:0 0 14px 14px;margin-top:-1px;">
+        <div style="padding:6px;border:1px solid #7C3AED;color:#a78bfa;border-radius:6px;font-size:13px;display:inline-block;">查看全部 (12)</div>
+      </div>
+    </div>
+    <div class="col" style="flex:0.8;">
+      <label>💎 特色亮点</label>
+      <div class="features" style="flex-direction:column;gap:10px;">
+        <div class="f-chip"><span class="dot p"></span> 英文 → 中文</div>
+        <div class="f-chip"><span class="dot g"></span> 中文 → 英文</div>
+        <div class="f-chip"><span class="dot p"></span> 自动获取音标</div>
+        <div class="f-chip"><span class="dot g"></span> 记录来源网址</div>
+        <div class="f-chip"><span class="dot p"></span> 30 字个性化注释</div>
+        <div class="f-chip"><span class="dot g"></span> 一键导出 HTML</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
