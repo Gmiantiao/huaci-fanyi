@@ -499,6 +499,12 @@ rows + '\n' +
     chrome.tabs.create({ url: chrome.runtime.getURL('words/index.html') });
   });
 
+  // --- View Flashcard ---
+  const viewFlashcardBtn = document.getElementById('viewFlashcardBtn');
+  viewFlashcardBtn.addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('words/index.html') + '?mode=flashcard' });
+  });
+
   // --- DeepSeek Test ---
   testDeepseekBtn.addEventListener('click', async () => {
     const key = deepseekApiKey.value.trim();

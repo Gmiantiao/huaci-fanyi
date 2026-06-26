@@ -438,6 +438,16 @@ input:checked + .toggle-slider::before { transform: translateX(16px); }
   background: #7C3AED;
   color: #fff;
 }
+.btn-flashcard-link {
+  margin-left: 6px;
+  border-color: #c084fc;
+  color: #a855f7;
+}
+.btn-flashcard-link:hover {
+  background: linear-gradient(135deg, #7C3AED, #a855f7);
+  color: #fff;
+  border-color: transparent;
+}
 
 /* Test Button (DeepSeek) */
 .btn-test {

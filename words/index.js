@@ -283,6 +283,326 @@ document.addEventListener('DOMContentLoaded', async () => {
     return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  // --- Flashcard ---
+  const flashcardModal = document.getElementById('flashcardModal');
+  const flashcardBtn = document.getElementById('flashcardBtn');
+  const flashcardClose = document.getElementById('flashcardClose');
+  const flashcardDeck = document.getElementById('flashcardDeck');
+  const flashcardCard = document.getElementById('flashcardCard');
+  const flashcardWord = document.getElementById('flashcardWord');
+  const flashcardPhonetic = document.getElementById('flashcardPhonetic');
+  const flashcardTranslation = document.getElementById('flashcardTranslation');
+  const flashcardNote = document.getElementById('flashcardNote');
+  const flashcardCounter = document.getElementById('flashcardCounter');
+  const flashcardBarFill = document.getElementById('flashcardBarFill');
+  const knownCount = document.getElementById('knownCount');
+  const unknownCount = document.getElementById('unknownCount');
+  const flashcardFlip = document.getElementById('flashcardFlip');
+  const flashcardKnown = document.getElementById('flashcardKnown');
+  const flashcardUnknown = document.getElementById('flashcardUnknown');
+  const flashcardComplete = document.getElementById('flashcardComplete');
+  const flashcardRestart = document.getElementById('flashcardRestart');
+
+  let flashcardWords = [];
+  let currentIndex = 0;
+  let knownTotal = 0;
+  let unknownTotal = 0;
+  let isFlipped = false;
+
+  flashcardBtn.addEventListener('click', () => {
+    if (allWords.length === 0) {
+      showHint('暂无收藏词汇，请先收藏一些词汇后再开始闪词学习', 'error');
+      return;
+    }
+    startFlashcard();
+  });
+
+  function startFlashcard() {
+    // Shuffle words for better learning effect
+    flashcardWords = [...allWords].sort(() => Math.random() - 0.5);
+    currentIndex = 0;
+    knownTotal = 0;
+    unknownTotal = 0;
+    isFlipped = false;
+    updateFlashcardStats();
+    flashcardComplete.style.display = 'none';
+    flashcardDeck.style.display = '';
+    document.querySelector('.flashcard-actions').style.display = '';
+    flashcardModal.style.display = '';
+    showCurrentCard();
+  }
+
+  function showCurrentCard() {
+    if (currentIndex >= flashcardWords.length) {
+      showFlashcardComplete();
+      return;
+    }
+    const w = flashcardWords[currentIndex];
+    flashcardWord.textContent = w.word;
+    flashcardPhonetic.textContent = w.phonetic || '';
+    flashcardTranslation.textContent = w.translation;
+    flashcardNote.textContent = w.note || '';
+    flashcardCard.classList.remove('flipped');
+    isFlipped = false;
+    flashcardCounter.textContent = (currentIndex + 1) + ' / ' + flashcardWords.length;
+    flashcardBarFill.style.width = ((currentIndex + 1) / flashcardWords.length * 100) + '%';
+  }
+
+  function updateFlashcardStats() {
+    knownCount.textContent = knownTotal;
+    unknownCount.textContent = unknownTotal;
+  }
+
+  flashcardCard.addEventListener('click', () => {
+    if (flashcardComplete.style.display !== 'none') return;
+    flipCard();
+  });
+
+  flashcardFlip.addEventListener('click', (e) => {
+    e.stopPropagation();
+    flipCard();
+  });
+
+  function flipCard() {
+    isFlipped = !isFlipped;
+    if (isFlipped) {
+      flashcardCard.classList.add('flipped');
+    } else {
+      flashcardCard.classList.remove('flipped');
+    }
+  }
+
+  flashcardKnown.addEventListener('click', (e) => {
+    e.stopPropagation();
+    markAndNext(true);
+  });
+
+  flashcardUnknown.addEventListener('click', (e) => {
+    e.stopPropagation();
+    markAndNext(false);
+  });
+
+  function markAndNext(known) {
+    if (known) knownTotal++;
+    else unknownTotal++;
+    updateFlashcardStats();
+    currentIndex++;
+    showCurrentCard();
+  }
+
+  function showFlashcardComplete() {
+    flashcardDeck.style.display = 'none';
+    document.querySelector('.flashcard-actions').style.display = 'none';
+    flashcardComplete.style.display = '';
+    document.getElementById('completeTotal').textContent = flashcardWords.length;
+    document.getElementById('completeKnown').textContent = knownTotal;
+    document.getElementById('completeUnknown').textContent = unknownTotal;
+  }
+
+  flashcardClose.addEventListener('click', () => {
+    flashcardModal.style.display = 'none';
+  });
+
+  flashcardModal.addEventListener('click', (e) => {
+    if (e.target === flashcardModal) flashcardModal.style.display = 'none';
+  });
+
+  flashcardRestart.addEventListener('click', () => {
+    startFlashcard();
+  });
+
+  // Keyboard shortcuts for flashcard
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (flashcardModal.style.display !== 'none') flashcardModal.style.display = 'none';
+      if (importModal.style.display !== 'none') importModal.style.display = 'none';
+      return;
+    }
+    if (flashcardModal.style.display === 'none') return;
+    if (flashcardComplete.style.display !== 'none') return;
+    if (e.key === 'ArrowLeft') markAndNext(false);
+    if (e.key === 'ArrowRight') markAndNext(true);
+    if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); flipCard(); }
+  });
+
+  // --- Import ---
+  const importModal = document.getElementById('importModal');
+  const importBtn = document.getElementById('importBtn');
+  const importClose = document.getElementById('importClose');
+  const importTextarea = document.getElementById('importTextarea');
+  const importPreviewBtn = document.getElementById('importPreviewBtn');
+  const importPreview = document.getElementById('importPreview');
+  const importPreviewList = document.getElementById('importPreviewList');
+  const importPreviewCount = document.getElementById('importPreviewCount');
+  const importConfirmBtn = document.getElementById('importConfirmBtn');
+  const importCancelBtn = document.getElementById('importCancelBtn');
+
+  let parsedImports = [];
+
+  importBtn.addEventListener('click', () => {
+    importTextarea.value = '';
+    importPreview.style.display = 'none';
+    parsedImports = [];
+    importModal.style.display = '';
+    importTextarea.focus();
+  });
+
+  importClose.addEventListener('click', () => {
+    importModal.style.display = 'none';
+  });
+
+  importModal.addEventListener('click', (e) => {
+    if (e.target === importModal) importModal.style.display = 'none';
+  });
+
+  importPreviewBtn.addEventListener('click', () => {
+    const raw = importTextarea.value.trim();
+    if (!raw) {
+      showHint('请粘贴要导入的内容', 'error');
+      return;
+    }
+    parsedImports = parseImportText(raw);
+    if (parsedImports.length === 0) {
+      showHint('未能解析到有效词条，请检查格式', 'error');
+      return;
+    }
+    renderImportPreview();
+  });
+
+  function parseImportText(text) {
+    // Try JSON first
+    let trimmed = text.trim();
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        const arr = Array.isArray(parsed) ? parsed : [parsed];
+        return arr.map(item => ({
+          word: (item.word || item.Word || item.text || '').toString().trim(),
+          translation: (item.translation || item.Translation || item.meaning || '').toString().trim(),
+          phonetic: (item.phonetic || item.Phonetic || '').toString().trim(),
+          note: (item.note || item.Note || '').toString().trim()
+        })).filter(item => item.word);
+      } catch (e) { /* fall through to line parsing */ }
+    }
+
+    // Parse line by line
+    const lines = trimmed.split(/\n/).map(l => l.trim()).filter(l => l);
+    const results = [];
+    const existingKeys = new Set(allWords.map(w => w.word.toLowerCase()));
+
+    for (const line of lines) {
+      // Skip lines that look like headers or comments
+      if (line.startsWith('#') || line.startsWith('//')) continue;
+
+      let word = '', translation = '', phonetic = '', note = '';
+
+      // Try | separator first (word | translation | phonetic)
+      if (line.includes('|')) {
+        const parts = line.split('|').map(p => p.trim());
+        word = parts[0] || '';
+        translation = parts[1] || '';
+        phonetic = parts[2] || '';
+        note = parts[3] || '';
+      }
+      // Try tab separator
+      else if (line.includes('\t')) {
+        const parts = line.split('\t').map(p => p.trim());
+        word = parts[0] || '';
+        translation = parts[1] || '';
+      }
+      // Try " - " or " — " separator
+      else if (line.includes(' - ') || line.includes(' — ')) {
+        const sep = line.includes(' - ') ? ' - ' : ' — ';
+        const idx = line.indexOf(sep);
+        word = line.slice(0, idx).trim();
+        translation = line.slice(idx + sep.length).trim();
+      }
+      // Just a word, no translation
+      else {
+        word = line;
+        translation = '';
+      }
+
+      if (word) {
+        const isDup = existingKeys.has(word.toLowerCase());
+        results.push({ word, translation, phonetic, note, isDuplicate: isDup });
+      }
+    }
+
+    return results;
+  }
+
+  function renderImportPreview() {
+    importPreview.style.display = '';
+    importPreviewList.innerHTML = '';
+    importPreviewCount.textContent = parsedImports.length;
+
+    for (const item of parsedImports) {
+      const div = document.createElement('div');
+      div.className = 'import-preview-item';
+      let dupTag = '';
+      if (item.isDuplicate) {
+        dupTag = '<span class="preview-dup">已存在，将跳过</span>';
+      }
+      let phoneticSpan = '';
+      if (item.phonetic) {
+        phoneticSpan = '<span class="preview-phonetic">' + escapeHtml(item.phonetic) + '</span>';
+      }
+      div.innerHTML = `
+        <span class="preview-word">${escapeHtml(item.word)}</span>
+        <span class="preview-arrow">→</span>
+        <span class="preview-translation">${escapeHtml(item.translation) || '(无翻译)'}</span>
+        ${phoneticSpan}
+        ${dupTag}
+      `;
+      importPreviewList.appendChild(div);
+    }
+  }
+
+  importConfirmBtn.addEventListener('click', async () => {
+    const newItems = parsedImports.filter(item => !item.isDuplicate);
+    if (newItems.length === 0) {
+      showImportHint('所有词条已存在，无需导入', 'warning');
+      return;
+    }
+
+    importConfirmBtn.disabled = true;
+    importConfirmBtn.textContent = '导入中...';
+
+    let imported = 0;
+    for (const item of newItems) {
+      await sendMessage({
+        type: 'addWord',
+        word: item.word,
+        translation: item.translation || '',
+        phonetic: item.phonetic || '',
+        note: item.note || '',
+        sourceUrl: ''
+      });
+      imported++;
+    }
+
+    importConfirmBtn.disabled = false;
+    importConfirmBtn.textContent = '确认导入';
+    importModal.style.display = 'none';
+    showHint('成功导入 ' + imported + ' 个词条' + (parsedImports.length - newItems.length > 0 ? '，跳过 ' + (parsedImports.length - newItems.length) + ' 个重复' : ''), 'success');
+    await loadWords();
+  });
+
+  importCancelBtn.addEventListener('click', () => {
+    importModal.style.display = 'none';
+  });
+
+  function showImportHint(text, type) {
+    // Reuse download hint area for import messages
+    showHint(text, type);
+  }
+
   // --- Init ---
   await loadWords();
+
+  // Auto-open flashcard if URL has ?mode=flashcard
+  if (window.location.search.includes('mode=flashcard') && allWords.length > 0) {
+    setTimeout(() => startFlashcard(), 300);
+  }
 });

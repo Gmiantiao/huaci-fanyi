@@ -141,6 +141,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     syncResult.style.display = 'none';
   });
 
+  // --- Flashcard Learning ---
+  document.getElementById('openFlashcardBtn').addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('words/index.html') + '?mode=flashcard' });
+  });
+
   // --- Result Display ---
   function showResult(type, message) {
     validateResult.style.display = 'block';

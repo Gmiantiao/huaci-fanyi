@@ -12,6 +12,7 @@
   let settings = { ...DEFAULT_SETTINGS };
   let conversationHistory = []; // For AI multi-turn conversation
   let selectedTextForAsk = ''; // Store the selected text context for AI
+  let translationRequestId = 0; // Track latest translation request to prevent stale popups
 
   // --- Init ---
   async function init() {
@@ -72,7 +73,7 @@
     // Click on a highlighted word: show popup to uncollect
     const highlightEl = e.target.closest('.wp-highlight');
     if (highlightEl && highlightEl.dataset.wpWord) {
-      if (currentPopup) removePopup();
+      if (currentPopup) dismissPopup();
       showHighlightPopup(highlightEl.dataset.wpWord, highlightEl.getBoundingClientRect());
       return;
     }
@@ -80,9 +81,9 @@
     const selection = window.getSelection();
     const selectedText = selection.toString().trim();
 
-    // Remove existing popup if clicking outside
+    // Remove existing popup if clicking outside (also cancels pending translation)
     if (currentPopup) {
-      removePopup();
+      dismissPopup();
       return;
     }
 
@@ -100,7 +101,7 @@
 
   function onKeyDown(e) {
     if (e.key === 'Escape' && currentPopup) {
-      removePopup();
+      dismissPopup();
       window.getSelection().removeAllRanges();
     }
   }
@@ -125,10 +126,16 @@
     selectedTextForAsk = text;
     conversationHistory = []; // Reset conversation when new selection
 
+    // Capture request ID to prevent stale callbacks from recreating popup
+    const requestId = ++translationRequestId;
+
     // Show loading popup
     showPopup(text, null, null, rect, true);
 
     chrome.runtime.sendMessage({ type: 'translate', text, targetLang: settings.targetLang, sourceLang: sourceLang }, (res) => {
+      // Discard stale response if popup was dismissed or a newer translation started
+      if (requestId !== translationRequestId) return;
+
       if (res && res.success) {
         showPopup(text, res.data.translatedText, res.data.phonetic, rect, false);
       } else {
@@ -138,9 +145,8 @@
   }
 
   async function showPopup(originalText, translation, phonetic, rect, loading) {
-    removePopup();
-
-    // Check if word is already collected
+    // Check if word is already collected BEFORE removing old popup,
+    // so there's no async gap between removePopup() and setting currentPopup.
     let isCollected = false;
     let existingNote = '';
     if (!loading) {
@@ -150,6 +156,9 @@
         existingNote = collectedEntry.note || '';
       }
     }
+
+    // Now synchronously replace the popup — no await between remove and create
+    removePopup();
 
     const showAsk = settings.enableAsk && settings.deepseekApiKey && !loading;
 
@@ -433,6 +442,12 @@
       currentPopup.remove();
       currentPopup = null;
     }
+  }
+
+  // Dismiss popup and cancel any pending translation request
+  function dismissPopup() {
+    translationRequestId++; // Invalidate pending async translation callbacks
+    removePopup();
   }
 
   // --- Highlighted Word Popup (click to uncollect) ---
