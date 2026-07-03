@@ -287,6 +287,8 @@ async function translateText(text, targetLang = 'zh-CN', sourceLang = 'en') {
   if (sourceLang === 'zh-CN') {
     tl = 'en'; // Chinese-to-English always targets English
   }
+  // For Japanese and Korean, translate to the user's chosen target language
+  // (sl stays as 'ja' or 'ko', tl stays as targetLang or user's target language)
 
   // Choose engine
   if (settings.translateEngine === 'deepseek' && settings.deepseekApiKey) {
@@ -321,9 +323,10 @@ async function translateWithGoogle(text, sl, tl) {
 }
 
 async function translateWithDeepSeek(text, sl, tl, apiKey) {
-  const systemPrompt = sl === 'zh-CN'
-    ? '你是一个翻译助手。将用户输入的中文翻译成英文，只返回翻译结果，不要解释。'
-    : '你是一个翻译助手。将用户输入的英文翻译成中文，只返回翻译结果，不要解释。';
+  const langNames = { 'zh-CN': '中文', 'zh-TW': '繁体中文', 'en': '英文', 'ja': '日文', 'ko': '韩文' };
+  const sourceName = langNames[sl] || sl;
+  const targetName = langNames[tl] || tl;
+  const systemPrompt = `你是一个翻译助手。将用户输入的${sourceName}翻译成${targetName}，只返回翻译结果，不要解释。`;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);

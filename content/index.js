@@ -93,6 +93,14 @@
       requestTranslation(selectedText, selection, 'en');
       return;
     }
+    if (isMostlyJapanese(selectedText)) {
+      requestTranslation(selectedText, selection, 'ja');
+      return;
+    }
+    if (isMostlyKorean(selectedText)) {
+      requestTranslation(selectedText, selection, 'ko');
+      return;
+    }
     if (settings.enableZhToEn && isMostlyChinese(selectedText)) {
       requestTranslation(selectedText, selection, 'zh-CN');
       return;
@@ -116,6 +124,20 @@
     const chineseChars = text.match(/[一-鿿㐀-䶿豈-﫿　-〿＀-￯]/g) || [];
     const ratio = chineseChars.length / text.length;
     return ratio > 0.4;
+  }
+
+  function isMostlyJapanese(text) {
+    // Hiragana (぀-ゟ) and Katakana (゠-ヿ) are unique to Japanese
+    const kanaChars = text.match(/[぀-ゟ゠-ヿ]/g) || [];
+    const ratio = kanaChars.length / text.length;
+    return ratio > 0.15;
+  }
+
+  function isMostlyKorean(text) {
+    // Hangul syllables (가-힣) and Hangul Jamo
+    const koreanChars = text.match(/[가-힯ᄀ-ᇿ]/g) || [];
+    const ratio = koreanChars.length / text.length;
+    return ratio > 0.3;
   }
 
   async function requestTranslation(text, selection, sourceLang) {
