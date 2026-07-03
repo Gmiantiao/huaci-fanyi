@@ -89,16 +89,24 @@
 
     if (!selectedText || selectedText.length === 0) return;
     if (selectedText.length > 500) return;
-    if (isMostlyEnglish(selectedText)) {
-      requestTranslation(selectedText, selection, 'en');
-      return;
-    }
     if (isMostlyJapanese(selectedText)) {
       requestTranslation(selectedText, selection, 'ja');
       return;
     }
     if (isMostlyKorean(selectedText)) {
       requestTranslation(selectedText, selection, 'ko');
+      return;
+    }
+    if (isMostlyVietnamese(selectedText)) {
+      requestTranslation(selectedText, selection, 'vi');
+      return;
+    }
+    if (isMostlyItalian(selectedText)) {
+      requestTranslation(selectedText, selection, 'it');
+      return;
+    }
+    if (isMostlyEnglish(selectedText)) {
+      requestTranslation(selectedText, selection, 'en');
       return;
     }
     if (settings.enableZhToEn && isMostlyChinese(selectedText)) {
@@ -138,6 +146,21 @@
     const koreanChars = text.match(/[가-힯ᄀ-ᇿ]/g) || [];
     const ratio = koreanChars.length / text.length;
     return ratio > 0.3;
+  }
+
+  function isMostlyVietnamese(text) {
+    // Vietnamese-specific characters: tone-marked vowels (U+1EA0-1EF9),
+    // đ (U+0111), ơ (U+01A1), ư (U+01B0)
+    const viChars = text.match(/[Ạ-ỹđơư]/g) || [];
+    const ratio = viChars.length / text.length;
+    return ratio > 0.08;
+  }
+
+  function isMostlyItalian(text) {
+    // Italian accented vowels: àèéìòóù (U+00E0, U+00E8, U+00E9, U+00EC, U+00F2, U+00F9)
+    const itChars = text.match(/[àèéìòù]/g) || [];
+    const ratio = itChars.length / text.length;
+    return ratio > 0.03;
   }
 
   async function requestTranslation(text, selection, sourceLang) {

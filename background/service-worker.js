@@ -323,7 +323,7 @@ async function translateWithGoogle(text, sl, tl) {
 }
 
 async function translateWithDeepSeek(text, sl, tl, apiKey) {
-  const langNames = { 'zh-CN': '中文', 'zh-TW': '繁体中文', 'en': '英文', 'ja': '日文', 'ko': '韩文' };
+  const langNames = { 'zh-CN': '中文', 'zh-TW': '繁体中文', 'en': '英文', 'ja': '日文', 'ko': '韩文', 'vi': '越南文', 'it': '意大利文' };
   const sourceName = langNames[sl] || sl;
   const targetName = langNames[tl] || tl;
   const systemPrompt = `你是一个翻译助手。将用户输入的${sourceName}翻译成${targetName}，只返回翻译结果，不要解释。`;
