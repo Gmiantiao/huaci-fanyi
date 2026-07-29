@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           targetLang.value = s.targetLang || 'zh-CN';
           highlightColor.value = s.highlightColor || '#7C3AED';
           showPhonetic.checked = s.showPhonetic !== false;
-          translateEngine.value = s.translateEngine || 'google';
+          translateEngine.value = s.translateEngine || 'mymemory';
           deepseekApiKey.value = s.deepseekApiKey || '';
           enableZhToEn.checked = s.enableZhToEn || false;
           enableAsk.checked = s.enableAsk !== false;
@@ -131,7 +131,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         sourceHtml = `<span class="word-source" title="${escapeHtml(entry.sourceUrl)}">${escapeHtml(domain)}</span>`;
       }
       if (entry.note) {
-        noteHtml = `<span class="word-note">${escapeHtml(entry.note)}</span>`;
+        noteHtml = `<span class="word-note" data-word="${escapeHtml(key)}">
+          <span class="word-note-text">${escapeHtml(entry.note)}</span>
+          <button class="word-note-edit-btn" title="编辑注释">
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+          <button class="word-note-del-btn" title="删除注释">×</button>
+        </span>`;
+      } else {
+        noteHtml = `<span class="word-note word-note-empty" data-word="${escapeHtml(key)}">
+          <button class="word-note-add-btn" title="添加注释">+ 注释</button>
+        </span>`;
       }
 
       const item = document.createElement('div');
@@ -190,6 +200,87 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateSelectUI();
         updateDownloadLabel();
       });
+    });
+
+    // Note edit button handlers
+    wordList.querySelectorAll('.word-note-edit-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const noteEl = btn.closest('.word-note');
+        startNoteEdit(noteEl);
+      });
+    });
+
+    // Note delete button handlers
+    wordList.querySelectorAll('.word-note-del-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const key = btn.closest('.word-note').dataset.word;
+        await updateWordNoteByKey(key, '');
+        await loadWords();
+      });
+    });
+
+    // Note add button handlers (for words without notes)
+    wordList.querySelectorAll('.word-note-add-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const noteEl = btn.closest('.word-note');
+        startNoteEdit(noteEl);
+      });
+    });
+  }
+
+  // Start inline note editing
+  function startNoteEdit(noteEl) {
+    const key = noteEl.dataset.word;
+    const word = allWords.find(w => w.word.toLowerCase() === key);
+    if (!word) return;
+    const currentNote = word.note || '';
+
+    noteEl.classList.add('word-note-editing');
+    noteEl.innerHTML = `
+      <input type="text" class="word-note-input" value="${escapeHtml(currentNote)}" maxlength="30" placeholder="添加注释...">
+      <button class="word-note-confirm" title="确认">✓</button>
+      <button class="word-note-cancel" title="取消">✗</button>
+    `;
+
+    const input = noteEl.querySelector('.word-note-input');
+    const confirmBtn = noteEl.querySelector('.word-note-confirm');
+    const cancelBtn = noteEl.querySelector('.word-note-cancel');
+
+    input.focus();
+    input.select();
+
+    async function finishEdit(save) {
+      if (save) {
+        const newNote = input.value.trim();
+        await updateWordNoteByKey(key, newNote);
+      }
+      await loadWords();
+    }
+
+    confirmBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      finishEdit(true);
+    });
+
+    cancelBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      finishEdit(false);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); finishEdit(true); }
+      if (e.key === 'Escape') { e.preventDefault(); finishEdit(false); }
+    });
+  }
+
+  async function updateWordNoteByKey(key, note) {
+    const word = allWords.find(w => w.word.toLowerCase() === key);
+    if (!word) return;
+    return new Promise((resolve) => {
+      chrome.runtime.sendMessage({ type: 'updateWordNote', word: word.word, note: note }, () => resolve());
     });
   }
 
@@ -525,7 +616,7 @@ rows + '\n' +
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'deepseek-chat',
+          model: 'deepseek-v4-pro',
           messages: [
             { role: 'system', content: 'Reply with only the word "OK".' },
             { role: 'user', content: 'Test' }

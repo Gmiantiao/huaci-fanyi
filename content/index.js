@@ -184,7 +184,8 @@
       if (res && res.success) {
         showPopup(text, res.data.translatedText, res.data.phonetic, rect, false);
       } else {
-        showPopup(text, '翻译失败，请重试', null, rect, false);
+        const errMsg = (res && res.error) ? res.error : '翻译失败，请重试';
+        showPopup(text, '❌ ' + errMsg, null, rect, false);
       }
     });
   }
@@ -215,7 +216,7 @@
         ${phonetic && settings.showPhonetic ? `<span class="wp-popup-phonetic">${escapeHtml(phonetic)}</span>` : ''}
       </div>
       <div class="wp-popup-translation">${loading ? '<span class="wp-loading"></span> 翻译中...' : escapeHtml(translation || '')}</div>
-      <div class="wp-popup-note-display" ${existingNote ? '' : 'style="display:none"'} title="注释">${escapeHtml(existingNote)}</div>
+      <div class="wp-popup-note-display" ${existingNote ? '' : 'style="display:none"'} title="注释"><span class="wp-note-text">${escapeHtml(existingNote)}</span><button class="wp-note-delete" title="删除注释">×</button></div>
       <div class="wp-popup-note-area" style="display:none;">
         <div class="wp-note-editor">
           <input type="text" class="wp-note-input" maxlength="30" placeholder="添加注释..." value="${escapeHtml(existingNote)}">
@@ -295,7 +296,8 @@
       const hasNote = !!existingNote;
       noteBtn && noteBtn.classList.toggle('wp-has-note', hasNote);
       if (noteDisplay) {
-        noteDisplay.textContent = existingNote;
+        const noteText = noteDisplay.querySelector('.wp-note-text');
+        if (noteText) noteText.textContent = existingNote;
         noteDisplay.style.display = hasNote ? 'block' : 'none';
       }
     }
@@ -375,6 +377,15 @@
           e.preventDefault();
           closeNoteEditor(false);
         }
+      });
+    }
+
+    // Note delete button handler
+    const noteDeleteBtn = popup.querySelector('.wp-note-delete');
+    if (noteDeleteBtn) {
+      noteDeleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        saveNoteToCollection('');
       });
     }
 
@@ -515,7 +526,7 @@
         ${entry.phonetic && settings.showPhonetic ? `<span class="wp-popup-phonetic">${escapeHtml(entry.phonetic)}</span>` : ''}
       </div>
       <div class="wp-popup-translation">${escapeHtml(entry.translation)}</div>
-      <div class="wp-popup-note-display" ${existingNote ? '' : 'style="display:none"'} title="注释">${escapeHtml(existingNote)}</div>
+      <div class="wp-popup-note-display" ${existingNote ? '' : 'style="display:none"'} title="注释"><span class="wp-note-text">${escapeHtml(existingNote)}</span><button class="wp-note-delete" title="删除注释">×</button></div>
       <div class="wp-popup-note-area" style="display:none;">
         <div class="wp-note-editor">
           <input type="text" class="wp-note-input" maxlength="30" placeholder="添加注释..." value="${escapeHtml(existingNote)}">
@@ -593,7 +604,8 @@
       const hasNote = !!existingNote;
       noteBtn && noteBtn.classList.toggle('wp-has-note', hasNote);
       if (noteDisplay) {
-        noteDisplay.textContent = existingNote;
+        const noteText = noteDisplay.querySelector('.wp-note-text');
+        if (noteText) noteText.textContent = existingNote;
         noteDisplay.style.display = hasNote ? 'block' : 'none';
       }
     }
@@ -655,6 +667,15 @@
           e.preventDefault();
           closeNoteEditor(false);
         }
+      });
+    }
+
+    // Note delete button handler
+    const noteDeleteBtn = popup.querySelector('.wp-note-delete');
+    if (noteDeleteBtn) {
+      noteDeleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        saveNoteToCollection('');
       });
     }
 

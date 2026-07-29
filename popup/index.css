@@ -339,13 +339,118 @@ input:checked + .toggle-slider::before { transform: translateX(16px); }
   font-size: 10px;
   color: #7C3AED;
   background: rgba(124, 58, 237, 0.08);
-  padding: 1px 6px;
+  padding: 1px 2px 1px 6px;
   border-radius: 3px;
-  max-width: 160px;
+  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.word-note-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.word-note-edit-btn,
+.word-note-del-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 1px 3px;
+  border-radius: 2px;
+  color: #b4a0e0;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.1s;
+  flex-shrink: 0;
+}
+
+.word-note-edit-btn:hover,
+.word-note-del-btn:hover {
+  color: #7C3AED;
+  background: rgba(124, 58, 237, 0.12);
+}
+
+.word-note-del-btn:hover {
+  color: #e53e3e;
+  background: rgba(229, 62, 62, 0.1);
+}
+
+/* Note add button (for words without notes) */
+.word-note-empty {
+  background: transparent;
+  padding: 1px 0;
+}
+
+.word-note-add-btn {
+  background: none;
+  border: 1px dashed #ccc;
+  cursor: pointer;
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: #aaa;
+  font-size: 10px;
+  transition: all 0.1s;
+}
+
+.word-note-add-btn:hover {
+  border-color: #7C3AED;
+  color: #7C3AED;
+  background: rgba(124, 58, 237, 0.04);
+}
+
+/* Inline note editor */
+.word-note-editing {
+  background: #fff;
+  border: 1px solid #7C3AED;
+  padding: 0 2px;
+  gap: 2px;
+}
+
+.word-note-input {
+  width: 100px;
+  padding: 2px 6px;
+  border: none;
+  outline: none;
+  font-size: 10px;
+  background: transparent;
+  color: #333;
+  min-width: 0;
+}
+
+.word-note-confirm,
+.word-note-cancel {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 11px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.word-note-confirm {
+  color: #10b981;
+}
+
+.word-note-confirm:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.word-note-cancel {
+  color: #999;
+}
+
+.word-note-cancel:hover {
+  color: #e53e3e;
+  background: rgba(229, 62, 62, 0.08);
 }
 .word-phonetic { font-size: 11px; color: #888; font-style: italic; }
 .word-translation { font-size: 12px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

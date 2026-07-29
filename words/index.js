@@ -73,7 +73,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       let noteHtml = '';
       if (entry.note) {
-        noteHtml = `<span class="row-note">${escapeHtml(entry.note)}</span>`;
+        noteHtml = `<span class="row-note" data-word="${escapeHtml(key)}">
+          <span class="row-note-text">${escapeHtml(entry.note)}</span>
+          <button class="row-note-edit-btn" title="编辑注释">
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </button>
+          <button class="row-note-del-btn" title="删除注释">×</button>
+        </span>`;
+      } else {
+        noteHtml = `<span class="row-note row-note-empty" data-word="${escapeHtml(key)}">
+          <button class="row-note-add-btn" title="添加注释">+ 注释</button>
+        </span>`;
       }
 
       const row = document.createElement('div');
@@ -133,6 +143,85 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (url) chrome.tabs.create({ url });
       });
     });
+
+    // Note edit button handlers
+    wordList.querySelectorAll('.row-note-edit-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const noteEl = btn.closest('.row-note');
+        startRowNoteEdit(noteEl);
+      });
+    });
+
+    // Note delete button handlers
+    wordList.querySelectorAll('.row-note-del-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const key = btn.closest('.row-note').dataset.word;
+        await updateWordNoteByKey(key, '');
+        await loadWords();
+      });
+    });
+
+    // Note add button handlers (for words without notes)
+    wordList.querySelectorAll('.row-note-add-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const noteEl = btn.closest('.row-note');
+        startRowNoteEdit(noteEl);
+      });
+    });
+  }
+
+  // Start inline note editing for word rows
+  function startRowNoteEdit(noteEl) {
+    const key = noteEl.dataset.word;
+    const word = allWords.find(w => w.word.toLowerCase() === key);
+    if (!word) return;
+    const currentNote = word.note || '';
+
+    noteEl.classList.add('row-note-editing');
+    noteEl.innerHTML = `
+      <input type="text" class="row-note-input" value="${escapeHtml(currentNote)}" maxlength="30" placeholder="添加注释...">
+      <button class="row-note-confirm" title="确认">✓</button>
+      <button class="row-note-cancel" title="取消">✗</button>
+    `;
+
+    const input = noteEl.querySelector('.row-note-input');
+    const confirmBtn = noteEl.querySelector('.row-note-confirm');
+    const cancelBtn = noteEl.querySelector('.row-note-cancel');
+
+    input.focus();
+    input.select();
+
+    async function finishEdit(save) {
+      if (save) {
+        const newNote = input.value.trim();
+        await updateWordNoteByKey(key, newNote);
+      }
+      await loadWords();
+    }
+
+    confirmBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      finishEdit(true);
+    });
+
+    cancelBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      finishEdit(false);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); finishEdit(true); }
+      if (e.key === 'Escape') { e.preventDefault(); finishEdit(false); }
+    });
+  }
+
+  async function updateWordNoteByKey(key, note) {
+    const word = allWords.find(w => w.word.toLowerCase() === key);
+    if (!word) return;
+    return sendMessage({ type: 'updateWordNote', word: word.word, note: note });
   }
 
   // --- Select All ---

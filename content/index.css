@@ -175,6 +175,26 @@
   background: rgba(229, 62, 62, 0.08);
 }
 
+/* Note delete button (on note display) */
+.wp-note-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 2px;
+  margin-left: 4px;
+  font-size: 14px;
+  line-height: 1;
+  color: #999;
+  border-radius: 3px;
+  transition: all 0.1s;
+  vertical-align: middle;
+}
+
+.wp-note-delete:hover {
+  color: #e53e3e;
+  background: rgba(229, 62, 62, 0.1);
+}
+
 /* Loading spinner */
 .wp-loading {
   display: inline-block;
@@ -390,6 +410,15 @@
   }
 
   .wp-note-cancel:hover {
+    background: rgba(229, 62, 62, 0.2);
+  }
+
+  .wp-note-delete {
+    color: #777;
+  }
+
+  .wp-note-delete:hover {
+    color: #f87171;
     background: rgba(229, 62, 62, 0.2);
   }
 

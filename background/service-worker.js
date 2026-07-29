@@ -290,36 +290,116 @@ async function translateText(text, targetLang = 'zh-CN', sourceLang = 'en') {
   // For Japanese and Korean, translate to the user's chosen target language
   // (sl stays as 'ja' or 'ko', tl stays as targetLang or user's target language)
 
-  // Choose engine
-  if (settings.translateEngine === 'deepseek' && settings.deepseekApiKey) {
-    return translateWithDeepSeek(text, sl, tl, settings.deepseekApiKey);
+  // Choose engine (with fallback: any engine failing → MyMemory)
+  const engine = settings.translateEngine || 'mymemory';
+
+  if (engine === 'deepseek' && settings.deepseekApiKey) {
+    try {
+      return await translateWithDeepSeek(text, sl, tl, settings.deepseekApiKey);
+    } catch (dsErr) {
+      console.warn('[划词翻译] DeepSeek失败，降级到MyMemory:', dsErr.message);
+      // Fall through to MyMemory
+    }
   }
 
-  return translateWithGoogle(text, sl, tl);
+  if (engine === 'google') {
+    try {
+      return await translateWithGoogle(text, sl, tl);
+    } catch (googleErr) {
+      console.warn('[划词翻译] Google失败，降级到MyMemory:', googleErr.message);
+      // Fall through to MyMemory
+    }
+  }
+
+  // MyMemory (or fallback from DeepSeek/Google)
+  try {
+    return await translateWithMyMemory(text, sl, tl);
+  } catch (mmErr) {
+    throw new Error('翻译失败：所有引擎均不可用。请检查网络或配置DeepSeek API Key');
+  }
 }
 
 async function translateWithGoogle(text, sl, tl) {
   const encoded = encodeURIComponent(text);
   const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encoded}`;
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('Translation failed: ' + response.status);
-  const data = await response.json();
-  let translatedText = '';
-  if (data && data[0]) {
-    for (const segment of data[0]) {
-      if (segment[0]) translatedText += segment[0];
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // Fast timeout for blocked region
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) throw new Error('Translation failed: ' + response.status);
+    const data = await response.json();
+    let translatedText = '';
+    if (data && data[0]) {
+      for (const segment of data[0]) {
+        if (segment[0]) translatedText += segment[0];
+      }
     }
+    let phonetic = '';
+    // Try Google Translate built-in phonetic first
+    if (data && data[1] && data[1][3]) {
+      phonetic = data[1][3];
+    }
+    // If no phonetic from Google, it's a single English word, and source is English, try Free Dictionary API
+    if (!phonetic && sl === 'en' && /^\w+$/.test(text)) {
+      phonetic = await fetchPhoneticFromDictionary(text);
+    }
+    return { translatedText: translatedText || '无法获取翻译', phonetic: phonetic, sourceLang: data && data[2] ? data[2] : sl };
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error('Google 翻译不可达（可能被网络屏蔽）');
+    }
+    throw err;
   }
-  let phonetic = '';
-  // Try Google Translate built-in phonetic first
-  if (data && data[1] && data[1][3]) {
-    phonetic = data[1][3];
+}
+
+async function translateWithMyMemory(text, sl, tl) {
+  // Map language codes to MyMemory format (en|zh-CN)
+  const langPair = sl + '|' + tl;
+  const encoded = encodeURIComponent(text);
+  const url = `https://api.mymemory.translated.net/get?q=${encoded}&langpair=${langPair}`;
+  console.log('[划词翻译] MyMemory request:', url.slice(0, 120));
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    console.log('[划词翻译] MyMemory response status:', response.status);
+
+    if (!response.ok) throw new Error('MyMemory translation failed: ' + response.status);
+    const data = await response.json();
+    console.log('[划词翻译] MyMemory data:', JSON.stringify(data).slice(0, 200));
+
+    let translatedText = '';
+    if (data && data.responseData && data.responseData.translatedText) {
+      translatedText = data.responseData.translatedText.trim();
+    }
+
+    // If match quality is low, try to indicate that
+    const matchQuality = (data && data.responseData && data.responseData.match) || 0;
+
+    let phonetic = '';
+    // Try Free Dictionary API for phonetic if it's a single English word
+    if (sl === 'en' && /^\w+$/.test(text)) {
+      phonetic = await fetchPhoneticFromDictionary(text);
+    }
+
+    // If match is very low (machine-generated fallback), prefix with indicator
+    const result = translatedText || '无法获取翻译';
+    return { translatedText: result, phonetic: phonetic, sourceLang: sl };
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error('MyMemory 请求超时，请检查网络');
+    }
+    throw err;
   }
-  // If no phonetic from Google, it's a single English word, and source is English, try Free Dictionary API
-  if (!phonetic && sl === 'en' && /^\w+$/.test(text)) {
-    phonetic = await fetchPhoneticFromDictionary(text);
-  }
-  return { translatedText: translatedText || '无法获取翻译', phonetic: phonetic, sourceLang: data && data[2] ? data[2] : sl };
 }
 
 async function translateWithDeepSeek(text, sl, tl, apiKey) {
@@ -339,7 +419,7 @@ async function translateWithDeepSeek(text, sl, tl, apiKey) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'deepseek-v4-pro',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: text }
@@ -412,7 +492,7 @@ async function askAI(selectedText, question, conversationHistory) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'deepseek-v4-pro',
         messages: messages,
         temperature: 0.7,
         max_tokens: 1024
@@ -526,10 +606,19 @@ async function checkWordCollected(word) {
 }
 
 // --- Settings ---
-const DEFAULT_SETTINGS = { enabled: true, targetLang: 'zh-CN', highlightColor: '#7C3AED', showPhonetic: true, enableZhToEn: false, translateEngine: 'google', deepseekApiKey: '', enableAsk: true };
+const DEFAULT_SETTINGS = { enabled: true, targetLang: 'zh-CN', highlightColor: '#7C3AED', showPhonetic: true, enableZhToEn: false, translateEngine: 'mymemory', deepseekApiKey: '', enableAsk: true };
 async function getSettings() {
   const result = await chrome.storage.local.get('settings');
-  return { ...DEFAULT_SETTINGS, ...result.settings };
+  const merged = { ...DEFAULT_SETTINGS, ...result.settings };
+
+  // Auto-migrate: Google is blocked in China, switch to MyMemory
+  if (merged.translateEngine === 'google') {
+    console.log('[划词翻译] 自动迁移：Google → MyMemory（Google翻译国内不可达）');
+    merged.translateEngine = 'mymemory';
+    await chrome.storage.local.set({ settings: merged });
+  }
+
+  return merged;
 }
 async function saveSettings(partial) {
   const current = await getSettings();

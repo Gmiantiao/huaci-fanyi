@@ -237,12 +237,117 @@ body {
   font-size: 11px;
   color: #7C3AED;
   background: rgba(124, 58, 237, 0.06);
-  padding: 1px 8px;
+  padding: 1px 2px 1px 8px;
   border-radius: 3px;
-  max-width: 200px;
+  max-width: 240px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.row-note-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-note-edit-btn,
+.row-note-del-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 1px 3px;
+  border-radius: 2px;
+  color: #c4b5fd;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.1s;
+  flex-shrink: 0;
+}
+
+.row-note-edit-btn:hover,
+.row-note-del-btn:hover {
+  color: #7C3AED;
+  background: rgba(124, 58, 237, 0.12);
+}
+
+.row-note-del-btn:hover {
+  color: #e53e3e;
+  background: rgba(229, 62, 62, 0.1);
+}
+
+/* Note add button (for rows without notes) */
+.row-note-empty {
+  background: transparent;
+  padding: 1px 0;
+}
+
+.row-note-add-btn {
+  background: none;
+  border: 1px dashed #d1d5db;
+  cursor: pointer;
+  padding: 1px 8px;
+  border-radius: 3px;
+  color: #aaa;
+  font-size: 11px;
+  transition: all 0.1s;
+}
+
+.row-note-add-btn:hover {
+  border-color: #7C3AED;
+  color: #7C3AED;
+  background: rgba(124, 58, 237, 0.04);
+}
+
+/* Inline note editor */
+.row-note-editing {
+  background: #fff;
+  border: 1px solid #7C3AED;
+  padding: 0 2px;
+  gap: 2px;
+}
+
+.row-note-input {
+  width: 120px;
+  padding: 2px 6px;
+  border: none;
+  outline: none;
+  font-size: 11px;
+  background: transparent;
+  color: #333;
+  min-width: 0;
+}
+
+.row-note-confirm,
+.row-note-cancel {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 11px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.row-note-confirm {
+  color: #10b981;
+}
+
+.row-note-confirm:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.row-note-cancel {
+  color: #999;
+}
+
+.row-note-cancel:hover {
+  color: #e53e3e;
+  background: rgba(229, 62, 62, 0.08);
 }
 .row-date { font-size: 11px; color: #bbb; margin-left: auto; white-space: nowrap; flex-shrink: 0; }
 
