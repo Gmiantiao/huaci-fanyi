@@ -7,51 +7,57 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { width:1280px; height:800px; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif; background:linear-gradient(135deg,#1a0a2e,#2d1b4e,#1a0a2e); display:flex; align-items:center; justify-content:center; }
-.card { width:1100px; padding:80px 100px; background:rgba(255,255,255,0.04); border-radius:24px; border:1px solid rgba(255,255,255,0.08); }
-.badge { display:inline-block; padding:6px 16px; background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24; border-radius:20px; font-size:14px; margin-bottom:24px; }
-h1 { font-size:52px; color:#fff; font-weight:700; margin-bottom:16px; letter-spacing:2px; }
+.card { width:1120px; padding:60px 80px; background:rgba(255,255,255,0.04); border-radius:24px; border:1px solid rgba(255,255,255,0.08); }
+.badge { display:inline-block; padding:6px 16px; background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24; border-radius:20px; font-size:14px; margin-bottom:20px; }
+h1 { font-size:48px; color:#fff; font-weight:700; margin-bottom:12px; letter-spacing:1px; }
 h1 span { color:#f59e0b; }
-.sub { font-size:20px; color:#a0a0c0; margin-bottom:48px; line-height:1.6; }
+.sub { font-size:18px; color:#a0a0c0; margin-bottom:32px; line-height:1.6; }
 .demo-area { display:flex; gap:40px; }
-.page-demo { flex:1; background:#1a1a2e; border-radius:14px; border:1px solid rgba(255,255,255,0.08); padding:32px; overflow:hidden; }
-.page-demo p { color:#c8c8d8; font-size:16px; line-height:2.2; }
-.hl { text-decoration:underline; text-decoration-color:#7C3AED; text-decoration-thickness:2px; text-underline-offset:3px; cursor:pointer; padding:1px 0; }
+.page-demo { flex:1; background:#1a1a2e; border-radius:12px; border:1px solid rgba(255,255,255,0.06); padding:28px 32px; overflow:hidden; position:relative; }
+.page-demo p { color:#c8c8d8; font-size:15px; line-height:2.2; }
+.hl { text-decoration:underline; text-decoration-color:#7C3AED; text-decoration-thickness:2px; text-underline-offset:3px; cursor:pointer; padding:1px 0; position:relative; }
 .hl:hover { background:rgba(124,58,237,0.12); }
-.tooltip { position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); background:#f0f0ff; color:#1a1a2e; font-size:12px; padding:5px 12px; border-radius:6px; white-space:nowrap; pointer-events:none; }
+.tooltip { position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); background:#f0f0ff; color:#1a1a2e; font-size:12px; padding:5px 12px; border-radius:6px; white-space:nowrap; pointer-events:none; z-index:2; }
 .tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:#f0f0ff; }
-.popup-demo { flex:0 0 280px; background:#1e1e3a; border-radius:12px; border:1px solid rgba(124,58,237,0.25); overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.3); }
+.popup-demo { flex:0 0 290px; background:#1e1e3a; border-radius:12px; border:1px solid rgba(124,58,237,0.25); overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.3); }
 .popup-header { padding:14px 16px 4px; display:flex; gap:8px; align-items:baseline; }
 .popup-word { font-size:16px; font-weight:700; color:#fff; }
 .popup-phonetic { font-size:12px; color:#888; font-style:italic; }
 .popup-trans { padding:6px 16px 10px; font-size:13px; color:#c8c8d8; }
-.popup-note { padding:2px 16px 8px; font-size:11px; color:#f59e0b; background:rgba(245,158,11,0.08); margin:0 16px 8px; border-radius:4px; }
+.popup-note { display:flex; align-items:center; gap:6px; padding:3px 10px; margin:0 16px 8px; font-size:11px; color:#f59e0b; background:rgba(245,158,11,0.1); border-radius:4px; }
+.popup-note-text { flex:1; }
+.popup-note-del { color:#999; cursor:pointer; font-size:14px; line-height:1; }
 .popup-footer { padding:6px 12px; display:flex; gap:6px; justify-content:flex-end; border-top:1px solid rgba(255,255,255,0.06); }
 .popup-btn { width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05); border:none; }
 .star-btn { color:#7C3AED; }
 .note-btn { color:#f59e0b; }
+.hint-row { display:flex; gap:12px; margin-top:12px; }
+.hint-chip { font-size:12px; color:#666; padding:6px 12px; background:rgba(255,255,255,0.03); border-radius:6px; }
 </style>
 </head>
 <body>
 <div class="card">
   <div class="badge">核心功能</div>
   <h1><span>页面高亮</span> · 温故知新</h1>
-  <p class="sub">收藏的词汇自动在页面上高亮标记。<br>鼠标悬停查看翻译，点击弹出完整信息，随时温习。</p>
+  <p class="sub">收藏的词汇自动在页面上紫色下划线高亮。悬停看翻译，点击弹出详情。<br>支持编辑、删除注释——管理收藏，尽在指尖。</p>
   <div class="demo-area">
-    <div class="page-demo" style="position:relative;">
+    <div class="page-demo">
       <p>
         The <span class="hl">quintessential</span> aspect of modern software engineering is not just writing code, but understanding the <span class="hl" style="position:relative;">ecosystem
         <div class="tooltip">生态系统</div>
         </span> in which it operates. From <span class="hl">containerization</span> to <span class="hl">orchestration</span>, the landscape has evolved <span class="hl">drastically</span> over the past decade.
       </p>
       <p>
-        Developers must now <span class="hl">grapple</span> with distributed systems, <span class="hl">immutable</span> infrastructure, and the <span class="hl">ephemeral</span> nature of cloud resources.
+        Developers must now <span class="hl">grapple</span> with distributed systems, <span class="hl">immutable</span> infrastructure, and the <span class="hl">ephemeral</span> nature of cloud resources. The <span class="hl">paradigm</span> has shifted from monolithic to microservices.
       </p>
-      <p style="margin-top:12px;">
-        <span class="hl">浏览即拾词</span> — 在网页中划选英文或中文即可翻译收藏。已收藏的词汇会自动以紫色下划线<span class="hl">高亮</span>标记，帮助你<span class="hl">温故知新</span>。
+      <p style="margin-top:10px;">
+        在网页中划选任意语言即可翻译收藏。已收藏词汇自动以<span class="hl">紫色下划线</span>标记，帮助你<span class="hl">温故知新</span>，日积月累。
       </p>
-      <p style="margin-top:12px; font-size:14px; color:#666;">
-        鼠标悬停 → 显示翻译 · 点击高亮词 → 查看详情 & 取消收藏
-      </p>
+      <div class="hint-row">
+        <span class="hint-chip">🖱️ 鼠标悬停 → 显示翻译</span>
+        <span class="hint-chip">👆 点击高亮词 → 查看详情 & 管理注释</span>
+        <span class="hint-chip">✎ 编辑注释 / × 删除注释</span>
+      </div>
     </div>
     <div class="popup-demo">
       <div class="popup-header">
@@ -59,7 +65,10 @@ h1 span { color:#f59e0b; }
         <span class="popup-phonetic">/ˌkwɪntɪˈsenʃəl/</span>
       </div>
       <div class="popup-trans">典型的，精华的；最本质的</div>
-      <div class="popup-note">GRE 核心词汇</div>
+      <div class="popup-note">
+        <span class="popup-note-text">GRE 核心词汇</span>
+        <span class="popup-note-del">×</span>
+      </div>
       <div class="popup-footer">
         <div class="popup-btn star-btn">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" stroke="currentColor" stroke-width="2">

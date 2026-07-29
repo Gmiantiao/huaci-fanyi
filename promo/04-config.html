@@ -3,74 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280, height=800">
-<title>灵活配置 · 随心导出</title>
+<title>灵活配置 · 全面掌控</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { width:1280px; height:800px; overflow:hidden; font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif; background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); display:flex; align-items:center; justify-content:center; }
-.card { width:1100px; padding:80px 100px; background:rgba(255,255,255,0.06); border-radius:24px; border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px); }
-.badge { display:inline-block; padding:6px 16px; background:rgba(59,130,246,0.15); border:1px solid #3b82f6; color:#93c5fd; border-radius:20px; font-size:14px; margin-bottom:24px; }
-h1 { font-size:52px; color:#fff; font-weight:700; margin-bottom:16px; letter-spacing:2px; }
+.card { width:1120px; padding:60px 80px; background:rgba(255,255,255,0.06); border-radius:24px; border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px); }
+.badge { display:inline-block; padding:6px 16px; background:rgba(59,130,246,0.15); border:1px solid #3b82f6; color:#93c5fd; border-radius:20px; font-size:14px; margin-bottom:20px; }
+h1 { font-size:48px; color:#fff; font-weight:700; margin-bottom:12px; letter-spacing:1px; }
 h1 span { color:#3b82f6; }
-.sub { font-size:20px; color:#a0a0c0; margin-bottom:48px; line-height:1.6; }
-.demo-grid { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto; gap:24px; }
-.tile { background:#1e1e3a; border-radius:14px; border:1px solid rgba(255,255,255,0.08); padding:28px; }
-.tile h3 { font-size:15px; color:#fff; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.sub { font-size:17px; color:#a0a0c0; margin-bottom:32px; line-height:1.6; }
+.demo-grid { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto; gap:20px; }
+.tile { background:#1e1e3a; border-radius:14px; border:1px solid rgba(255,255,255,0.08); padding:24px 28px; }
+.tile h3 { font-size:15px; color:#fff; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
 .tile h3 .icon { font-size:18px; }
-.setting-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
-.setting-row:last-child { border:none; }
-.setting-row label { font-size:13px; color:#a0a0c0; }
-.setting-row .val { font-size:13px; color:#888; }
-.select-box { display:flex; align-items:center; gap:8px; padding:6px 12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:6px; font-size:12px; color:#ccc; }
-.toggle { width:36px; height:20px; background:#ccc; border-radius:10px; position:relative; }
-.toggle.on { background:#7C3AED; }
-.toggle::after { content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; background:#fff; border-radius:50%; }
-.toggle.on::after { transform:translateX(16px); }
-.export-preview { background:rgba(255,255,255,0.05); border-radius:8px; padding:16px; font-size:12px; color:#888; line-height:1.8; font-family:monospace; }
-.export-preview th { color:#a78bfa; }
-.export-preview td { padding:2px 8px; }
-.engine-card { display:flex; align-items:center; justify-content:center; gap:24px; padding:12px; }
-.engine { text-align:center; padding:14px 20px; border-radius:10px; border:1px solid rgba(255,255,255,0.08); }
+.engine-card { display:flex; align-items:center; justify-content:center; gap:16px; }
+.engine { text-align:center; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,0.08); flex:1; }
 .engine.active { border-color:#7C3AED; background:rgba(124,58,237,0.08); }
-.engine .name { font-size:14px; font-weight:600; color:#fff; margin-top:6px; }
-.engine .desc { font-size:11px; color:#666; margin-top:2px; }
-.engine .logo { font-size:28px; }
-.footer-bar { margin-top:40px; display:flex; gap:16px; justify-content:center; }
-.footer-chip { padding:8px 20px; border-radius:20px; background:rgba(255,255,255,0.05); font-size:13px; color:#888; }
-.footer-chip.on { background:rgba(16,185,129,0.1); color:#6ee7b7; border:1px solid rgba(16,185,129,0.2); }
+.engine .logo { font-size:24px; }
+.engine .name { font-size:13px; font-weight:600; color:#fff; margin-top:4px; }
+.engine .desc { font-size:10px; color:#666; margin-top:2px; }
+.setting-row { display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.setting-row:last-child { border:none; }
+.setting-row label { font-size:12px; color:#a0a0c0; }
+.setting-row .val { font-size:12px; color:#888; }
+.select-box { display:flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:6px; font-size:11px; color:#ccc; }
+.color-dot { width:18px; height:18px; background:#7C3AED; border-radius:4px; }
+.toggle { width:34px; height:18px; background:#555; border-radius:9px; position:relative; }
+.toggle.on { background:#7C3AED; }
+.toggle::after { content:''; position:absolute; top:2px; left:2px; width:14px; height:14px; background:#fff; border-radius:50%; transition:0.15s; }
+.toggle.on::after { transform:translateX(16px); }
+.export-preview { background:rgba(255,255,255,0.04); border-radius:8px; padding:14px; font-family:"SF Mono","Fira Code",monospace; font-size:11px; color:#888; line-height:1.8; }
+.export-preview .kw { color:#a78bfa; }
+.import-preview { background:rgba(255,255,255,0.04); border-radius:8px; padding:14px; font-size:12px; color:#888; line-height:1.8; }
+.import-preview .w { color:#6ee7b7; }
+.footer-bar { margin-top:28px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.f-chip { padding:7px 18px; border-radius:20px; background:rgba(255,255,255,0.04); font-size:12px; color:#888; border:1px solid rgba(255,255,255,0.06); }
+.f-chip.on { background:rgba(59,130,246,0.1); color:#93c5fd; border-color:rgba(59,130,246,0.2); }
 </style>
 </head>
 <body>
 <div class="card">
   <div class="badge">核心功能</div>
-  <h1><span>灵活配置</span> · 随心导出</h1>
-  <p class="sub">双引擎翻译、暗黑模式自适应、Notion 一键同步、HTML 格式导出。<br>你的学习工具，由你做主。</p>
+  <h1><span>灵活配置</span> · 全面掌控</h1>
+  <p class="sub">三引擎翻译、暗黑自适应、Notion 同步、HTML 导出、闪词复习、批量导入。<br>你的学习工具箱，按你的方式运转。</p>
 
   <div class="demo-grid">
+    <!-- 翻译引擎 -->
     <div class="tile">
-      <h3><span class="icon">⚙️</span> 翻译引擎</h3>
+      <h3><span class="icon">🔤</span> 翻译引擎 · 三选一 + 自动降级</h3>
       <div class="engine-card">
+        <div class="engine active">
+          <div class="logo">🌐</div>
+          <div class="name">MyMemory</div>
+          <div class="desc">免费 · 可靠</div>
+        </div>
         <div class="engine">
           <div class="logo">🔤</div>
-          <div class="name">Google 翻译</div>
-          <div class="desc">免费 · 即时</div>
+          <div class="name">Google</div>
+          <div class="desc">快速 · 即时</div>
         </div>
-        <div class="engine active">
+        <div class="engine">
           <div class="logo">🤖</div>
           <div class="name">DeepSeek</div>
           <div class="desc">AI · 精准</div>
         </div>
       </div>
+      <div style="text-align:center;margin-top:10px;font-size:11px;color:#666;">任一引擎失败 → 自动降级到 MyMemory</div>
     </div>
 
+    <!-- 偏好设置 -->
     <div class="tile">
       <h3><span class="icon">🎛️</span> 偏好设置</h3>
       <div class="setting-row">
         <label>翻译目标语言</label>
-        <span class="val">中文简体</span>
+        <span class="val">中文简体 ▾</span>
       </div>
       <div class="setting-row">
         <label>高亮颜色</label>
-        <div style="width:20px;height:20px;background:#7C3AED;border-radius:4px;"></div>
+        <div class="color-dot"></div>
       </div>
       <div class="setting-row">
         <label>显示音标</label>
@@ -81,57 +91,69 @@ h1 span { color:#3b82f6; }
         <div class="toggle on"></div>
       </div>
       <div class="setting-row">
-        <label>暗黑模式适配</label>
+        <label>💬 AI 提问</label>
         <div class="toggle on"></div>
-        <span class="val" style="font-size:11px;">自动跟随系统</span>
+      </div>
+      <div class="setting-row">
+        <label>暗黑模式</label>
+        <div class="toggle on"></div>
+        <span class="val" style="font-size:10px;">自动跟随系统</span>
       </div>
     </div>
 
+    <!-- Notion + 导出 -->
     <div class="tile">
-      <h3><span class="icon">☁️</span> Notion 同步</h3>
+      <h3><span class="icon">☁️</span> Notion 同步 + HTML 导出</h3>
       <div class="setting-row">
         <label>连接状态</label>
         <span class="val" style="color:#6ee7b7;">✅ 已连接</span>
       </div>
       <div class="setting-row">
-        <label>数据库属性</label>
-        <span class="val" style="font-size:11px;">单词 · 中文释义 · 音标 · 来源 · 收藏时间</span>
+        <label>数据库字段</label>
+        <span class="val" style="font-size:10px;">单词 · 释义 · 音标 · 来源 · 时间 · 注释</span>
       </div>
       <div class="setting-row">
-        <label>自动同步</label>
+        <label>同步方式</label>
         <span class="val">收藏即同步</span>
       </div>
-      <div style="text-align:center;margin-top:12px;">
-        <div style="display:inline-block;padding:6px 20px;background:#7C3AED;color:#fff;border-radius:6px;font-size:12px;">一键同步全部</div>
+      <div style="text-align:center;margin-top:10px;">
+        <span style="display:inline-block;padding:6px 20px;background:#7C3AED;color:#fff;border-radius:6px;font-size:12px;">一键同步全部</span>
+      </div>
+      <div class="export-preview" style="margin-top:10px;">
+        <span class="kw">&lt;h1&gt;</span>📖 生词收藏<span class="kw">&lt;/h1&gt;</span><br>
+        <span class="kw">&lt;table&gt;</span> 英文 · 音标 · 翻译 · 注释 · 日期 <span class="kw">&lt;/table&gt;</span><br>
+        <span style="color:#93c5fd;">生词收藏_2026-07-29.html</span> 📥
       </div>
     </div>
 
+    <!-- 闪词 + 导入 -->
     <div class="tile">
-      <h3><span class="icon">📥</span> 导出 HTML</h3>
-      <div class="export-preview">
-        &lt;h1&gt;📖 生词收藏&lt;/h1&gt;<br>
-        &lt;table&gt;<br>
-        &nbsp;&nbsp;&lt;tr&gt;<span style="color:#a78bfa;">&lt;th&gt;</span>英文<span style="color:#a78bfa;">&lt;/th&gt;&lt;th&gt;</span>音标<span style="color:#a78bfa;">&lt;/th&gt;&lt;th&gt;</span>翻译<span style="color:#a78bfa;">&lt;/th&gt;&lt;th&gt;</span>注释<span style="color:#a78bfa;">&lt;/th&gt;&lt;th&gt;</span>日期<span style="color:#a78bfa;">&lt;/th&gt;</span>&lt;/tr&gt;<br>
-        &nbsp;&nbsp;&lt;tr&gt;<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;quintessential&lt;/td&gt;<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;/ˌkwɪntɪˈsenʃəl/&lt;/td&gt;<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;典型的，精华的&lt;/td&gt;<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;GRE核心词汇&lt;/td&gt;<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;2026-06-08&lt;/td&gt;<br>
-        &nbsp;&nbsp;&lt;/tr&gt;<br>
-        &lt;/table&gt;<br>
-        <span style="color:#888;">生词收藏_2026-06-08.html</span>
+      <h3><span class="icon">⚡</span> 闪词学习 + 批量导入</h3>
+      <div style="display:flex;gap:12px;align-items:stretch;">
+        <div style="flex:1;background:rgba(124,58,237,0.08);border-radius:8px;padding:14px;text-align:center;border:1px solid rgba(124,58,237,0.15);">
+          <div style="font-size:28px;margin-bottom:4px;">🃏</div>
+          <div style="font-size:14px;font-weight:600;color:#fff;">闪词复习</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">正面单词 · 反面释义<br>左右滑标记认识/不认识</div>
+        </div>
+        <div style="flex:1;background:rgba(16,185,129,0.06);border-radius:8px;padding:14px;text-align:center;border:1px solid rgba(16,185,129,0.12);">
+          <div style="font-size:28px;margin-bottom:4px;">📥</div>
+          <div style="font-size:14px;font-weight:600;color:#fff;">批量导入</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">JSON · 文本 · CSV<br>自动去重 智能解析</div>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="footer-bar">
-    <div class="footer-chip on">🔤 Google 翻译</div>
-    <div class="footer-chip">🤖 DeepSeek</div>
-    <div class="footer-chip">🌐 划词翻译</div>
-    <div class="footer-chip">📝 收藏注释</div>
-    <div class="footer-chip">☁️ Notion 同步</div>
-    <div class="footer-chip">📥 HTML 导出</div>
+    <div class="f-chip on">🌐 MyMemory</div>
+    <div class="f-chip">🔤 Google</div>
+    <div class="f-chip">🤖 DeepSeek</div>
+    <div class="f-chip">💬 AI 提问</div>
+    <div class="f-chip">📝 注释管理</div>
+    <div class="f-chip">⚡ 闪词学习</div>
+    <div class="f-chip">📥 批量导入</div>
+    <div class="f-chip">☁️ Notion 同步</div>
+    <div class="f-chip">📥 HTML 导出</div>
   </div>
 </div>
 </body>
