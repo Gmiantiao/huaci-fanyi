@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const settingsPanel = document.getElementById('settingsPanel');
   const targetLang = document.getElementById('targetLang');
   const highlightColor = document.getElementById('highlightColor');
-  const showPhonetic = document.getElementById('showPhonetic');
   const clearAll = document.getElementById('clearAll');
   const downloadBtn = document.getElementById('downloadBtn');
   const downloadLabel = document.getElementById('downloadLabel');
@@ -33,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let allWords = [];
   let selectedWords = new Set(); // tracks selected word text (lowercase)
-  let currentSettings = { showPhonetic: true };
+  let currentSettings = {};
 
   // --- Load Settings ---
   async function loadSettings() {
@@ -45,8 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           toggleEnabled.checked = s.enabled;
           targetLang.value = s.targetLang || 'zh-CN';
           highlightColor.value = s.highlightColor || '#7C3AED';
-          showPhonetic.checked = s.showPhonetic !== false;
-          translateEngine.value = s.translateEngine || 'mymemory';
+          translateEngine.value = s.translateEngine || 'google';
           deepseekApiKey.value = s.deepseekApiKey || '';
           enableZhToEn.checked = s.enableZhToEn || false;
           enableAsk.checked = s.enableAsk !== false;
@@ -115,12 +113,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const key = entry.word.toLowerCase();
       const isChecked = selectedWords.has(key);
 
-      // Build phonetic display line
-      let phoneticHtml = '';
-      if (currentSettings.showPhonetic && entry.phonetic) {
-        phoneticHtml = '<span class="word-phonetic">' + escapeHtml(entry.phonetic) + '</span>';
-      }
-
       // Source URL link
       let wordTextHtml = `<span class="word-text">${escapeHtml(entry.word)}</span>`;
       let sourceHtml = '';
@@ -153,7 +145,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         </label>
         <div class="word-info">
           ${wordTextHtml}
-          ${phoneticHtml}
           <span class="word-translation">${escapeHtml(entry.translation)}</span>
           <div class="word-meta">
             ${sourceHtml}
@@ -370,24 +361,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     var rows = words.map(function(w, i) {
       var dt = new Date(w.addedAt).toLocaleDateString('zh-CN');
-      var phCell = '';
-      if (currentSettings.showPhonetic && w.phonetic) {
-        phCell = '<td style="padding:8px 12px;border-bottom:1px solid #eee;color:#888;font-size:12px;font-style:italic;">' + h(w.phonetic) + '</td>';
-      }
       return '<tr>' +
         '<td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;color:#999;width:40px;">' + (i + 1) + '</td>' +
         '<td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600;color:#333;">' + h(w.word) + '</td>' +
-        phCell +
         '<td style="padding:8px 12px;border-bottom:1px solid #eee;color:#555;">' + h(w.translation) + '</td>' +
         '<td style="padding:8px 12px;border-bottom:1px solid #eee;color:#999;font-size:12px;white-space:nowrap;">' + dt + '</td>' +
       '</tr>';
     }).join('');
-
-    // Table header with or without phonetic column
-    var phHeader = '';
-    if (currentSettings.showPhonetic) {
-      phHeader = '<th>音标</th>';
-    }
 
     return '<!DOCTYPE html>\n' +
 '<html lang="zh-CN">\n' +
@@ -413,7 +393,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 '<tr>\n' +
 '  <th style="width:40px;text-align:center;">#</th>\n' +
 '  <th>\u82f1\u6587</th>\n' +
-'  ' + phHeader + '\n' +
 '  <th>\u4e2d\u6587\u7ffb\u8bd1</th>\n' +
 '  <th style="width:90px;">\u6536\u85cf\u65e5\u671f</th>\n' +
 '</tr>\n' +
@@ -468,12 +447,6 @@ rows + '\n' +
   // --- Settings Changes ---
   targetLang.addEventListener('change', function() { saveSettings({ targetLang: targetLang.value }); });
   highlightColor.addEventListener('input', function() { saveSettings({ highlightColor: highlightColor.value }); });
-  showPhonetic.addEventListener('change', async function() {
-    await saveSettings({ showPhonetic: showPhonetic.checked });
-    currentSettings.showPhonetic = showPhonetic.checked;
-    renderWordList(allWords);
-  });
-
   translateEngine.addEventListener('change', function() {
     saveSettings({ translateEngine: translateEngine.value });
     deepseekKeyRow.style.display = (translateEngine.value === 'deepseek') ? 'flex' : 'none';

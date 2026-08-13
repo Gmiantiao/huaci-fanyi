@@ -58,11 +58,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const isChecked = selectedWords.has(key);
       const dateStr = new Date(entry.addedAt).toLocaleDateString('zh-CN');
 
-      let phoneticHtml = '';
-      if (entry.phonetic) {
-        phoneticHtml = `<span class="row-phonetic">${escapeHtml(entry.phonetic)}</span>`;
-      }
-
       let wordHtml = `<span class="row-word">${escapeHtml(entry.word)}</span>`;
       let sourceHtml = '';
       if (entry.sourceUrl) {
@@ -96,7 +91,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="row-info">
           <div class="row-main">
             ${wordHtml}
-            ${phoneticHtml}
           </div>
           <span class="row-translation">${escapeHtml(entry.translation)}</span>
           <div class="row-meta">
@@ -293,13 +287,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dateStr = new Date().toLocaleDateString('zh-CN');
     const rows = words.map((w, i) => {
       const dt = new Date(w.addedAt).toLocaleDateString('zh-CN');
-      let phCell = w.phonetic
-        ? '<td style="padding:8px 12px;border-bottom:1px solid #eee;color:#888;font-size:12px;font-style:italic;">' + h(w.phonetic) + '</td>'
-        : '';
       return '<tr>' +
         '<td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;color:#999;width:40px;">' + (i + 1) + '</td>' +
         '<td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600;color:#333;">' + h(w.word) + '</td>' +
-        phCell +
         '<td style="padding:8px 12px;border-bottom:1px solid #eee;color:#555;">' + h(w.translation) + '</td>' +
         (w.note ? '<td style="padding:8px 12px;border-bottom:1px solid #eee;color:#7C3AED;font-size:12px;">' + h(w.note) + '</td>' : '<td></td>') +
         '<td style="padding:8px 12px;border-bottom:1px solid #eee;color:#999;font-size:12px;white-space:nowrap;">' + dt + '</td>' +
@@ -320,7 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       '</style>\n</head>\n<body>\n' +
       '<h1>\u{1F4D6} \u751f\u8bcd\u6536\u85cf</h1>\n' +
       '<p class="meta">\u5bfc\u51fa\u65f6\u95f4\uff1a' + dateStr + '\u3000\uff5c\u3000\u5171 ' + words.length + ' \u4e2a\u8bcd\u6c47</p>\n' +
-      '<table>\n<thead>\n<tr>\n<th style="width:40px;text-align:center;">#</th>\n<th>\u82f1\u6587/\u539f\u6587</th>\n<th>\u97f3\u6807</th>\n<th>\u7ffb\u8bd1</th>\n' +
+      '<table>\n<thead>\n<tr>\n<th style="width:40px;text-align:center;">#</th>\n<th>\u82f1\u6587/\u539f\u6587</th>\n<th>\u7ffb\u8bd1</th>\n' +
       (hasNotes ? '<th>\u6ce8\u91ca</th>\n' : '<th></th>\n') +
       '<th style="width:90px;">\u6536\u85cf\u65e5\u671f</th>\n</tr>\n</thead>\n<tbody>\n' + rows + '\n</tbody>\n</table>\n' +
       '<p class="footer">\u7531\u300c\u62fe\u8bcd\u300dChrome \u63d2\u4ef6\u5bfc\u51fa \u00b7 ' + dateStr + '</p>\n</body>\n</html>';
@@ -379,7 +369,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const flashcardDeck = document.getElementById('flashcardDeck');
   const flashcardCard = document.getElementById('flashcardCard');
   const flashcardWord = document.getElementById('flashcardWord');
-  const flashcardPhonetic = document.getElementById('flashcardPhonetic');
   const flashcardTranslation = document.getElementById('flashcardTranslation');
   const flashcardNote = document.getElementById('flashcardNote');
   const flashcardCounter = document.getElementById('flashcardCounter');
@@ -428,7 +417,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const w = flashcardWords[currentIndex];
     flashcardWord.textContent = w.word;
-    flashcardPhonetic.textContent = w.phonetic || '';
     flashcardTranslation.textContent = w.translation;
     flashcardNote.textContent = w.note || '';
     flashcardCard.classList.remove('flipped');
@@ -568,7 +556,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return arr.map(item => ({
           word: (item.word || item.Word || item.text || '').toString().trim(),
           translation: (item.translation || item.Translation || item.meaning || '').toString().trim(),
-          phonetic: (item.phonetic || item.Phonetic || '').toString().trim(),
           note: (item.note || item.Note || '').toString().trim()
         })).filter(item => item.word);
       } catch (e) { /* fall through to line parsing */ }
@@ -583,15 +570,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Skip lines that look like headers or comments
       if (line.startsWith('#') || line.startsWith('//')) continue;
 
-      let word = '', translation = '', phonetic = '', note = '';
+      let word = '', translation = '', note = '';
 
-      // Try | separator first (word | translation | phonetic)
+      // Try | separator first (word | translation)
       if (line.includes('|')) {
         const parts = line.split('|').map(p => p.trim());
         word = parts[0] || '';
         translation = parts[1] || '';
-        phonetic = parts[2] || '';
-        note = parts[3] || '';
+        note = parts[2] || '';
       }
       // Try tab separator
       else if (line.includes('\t')) {
@@ -614,7 +600,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (word) {
         const isDup = existingKeys.has(word.toLowerCase());
-        results.push({ word, translation, phonetic, note, isDuplicate: isDup });
+        results.push({ word, translation, note, isDuplicate: isDup });
       }
     }
 
@@ -633,15 +619,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (item.isDuplicate) {
         dupTag = '<span class="preview-dup">已存在，将跳过</span>';
       }
-      let phoneticSpan = '';
-      if (item.phonetic) {
-        phoneticSpan = '<span class="preview-phonetic">' + escapeHtml(item.phonetic) + '</span>';
-      }
       div.innerHTML = `
         <span class="preview-word">${escapeHtml(item.word)}</span>
         <span class="preview-arrow">→</span>
         <span class="preview-translation">${escapeHtml(item.translation) || '(无翻译)'}</span>
-        ${phoneticSpan}
         ${dupTag}
       `;
       importPreviewList.appendChild(div);
@@ -664,7 +645,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         type: 'addWord',
         word: item.word,
         translation: item.translation || '',
-        phonetic: item.phonetic || '',
         note: item.note || '',
         sourceUrl: ''
       });

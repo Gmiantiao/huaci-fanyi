@@ -7,7 +7,7 @@
   if (window.__wordPickerInjected) return;
   window.__wordPickerInjected = true;
 
-  const DEFAULT_SETTINGS = { enabled: true, targetLang: 'zh-CN', highlightColor: '#7C3AED', showPhonetic: true, enableZhToEn: false, enableAsk: true };
+  const DEFAULT_SETTINGS = { enabled: true, targetLang: 'zh-CN', highlightColor: '#7C3AED', enableZhToEn: false, enableAsk: true };
   let currentPopup = null;
   let settings = { ...DEFAULT_SETTINGS };
   let conversationHistory = []; // For AI multi-turn conversation
@@ -23,6 +23,7 @@
     document.addEventListener('mouseup', onMouseUp);
     document.addEventListener('keydown', onKeyDown);
     chrome.runtime.onMessage.addListener(onMessage);
+    observeDomChanges();
   }
 
   function onMessage(request, sender, sendResponse) {
@@ -105,8 +106,15 @@
       requestTranslation(selectedText, selection, 'it');
       return;
     }
+    if (isMostlySpanish(selectedText)) {
+      requestTranslation(selectedText, selection, 'es');
+      return;
+    }
     if (isMostlyEnglish(selectedText)) {
-      requestTranslation(selectedText, selection, 'en');
+      // Latin-script text (English, Spanish, Portuguese, French, German, etc.)
+      // can't be reliably told apart by characters alone (e.g. "hola" vs "hello").
+      // Let the translation engine auto-detect instead of assuming English.
+      requestTranslation(selectedText, selection, 'auto');
       return;
     }
     if (settings.enableZhToEn && isMostlyChinese(selectedText)) {
@@ -163,6 +171,15 @@
     return ratio > 0.03;
   }
 
+  function isMostlySpanish(text) {
+    // Spanish-only characters: ñ/Ñ (U+00F1/00D1), ¿ (U+00BF), ¡ (U+00A1).
+    // Accented vowels á é í ó ú ü and their caps are shared with other Latin
+    // languages, so rely on the strong markers; anything else falls through
+    // to 'auto' so the translation engine detects the language.
+    const esChars = text.match(/[ñÑ¿¡]/g) || [];
+    return esChars.length > 0;
+  }
+
   async function requestTranslation(text, selection, sourceLang) {
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
@@ -175,22 +192,22 @@
     const requestId = ++translationRequestId;
 
     // Show loading popup
-    showPopup(text, null, null, rect, true);
+    showPopup(text, null, rect, true);
 
     chrome.runtime.sendMessage({ type: 'translate', text, targetLang: settings.targetLang, sourceLang: sourceLang }, (res) => {
       // Discard stale response if popup was dismissed or a newer translation started
       if (requestId !== translationRequestId) return;
 
       if (res && res.success) {
-        showPopup(text, res.data.translatedText, res.data.phonetic, rect, false);
+        showPopup(text, res.data.translatedText, rect, false);
       } else {
         const errMsg = (res && res.error) ? res.error : '翻译失败，请重试';
-        showPopup(text, '❌ ' + errMsg, null, rect, false);
+        showPopup(text, '❌ ' + errMsg, rect, false);
       }
     });
   }
 
-  async function showPopup(originalText, translation, phonetic, rect, loading) {
+  async function showPopup(originalText, translation, rect, loading) {
     // Check if word is already collected BEFORE removing old popup,
     // so there's no async gap between removePopup() and setting currentPopup.
     let isCollected = false;
@@ -213,7 +230,6 @@
     popup.innerHTML = `
       <div class="wp-popup-header">
         <span class="wp-popup-word">${escapeHtml(originalText)}</span>
-        ${phonetic && settings.showPhonetic ? `<span class="wp-popup-phonetic">${escapeHtml(phonetic)}</span>` : ''}
       </div>
       <div class="wp-popup-translation">${loading ? '<span class="wp-loading"></span> 翻译中...' : escapeHtml(translation || '')}</div>
       <div class="wp-popup-note-display" ${existingNote ? '' : 'style="display:none"'} title="注释"><span class="wp-note-text">${escapeHtml(existingNote)}</span><button class="wp-note-delete" title="删除注释">×</button></div>
@@ -329,7 +345,7 @@
           collectBtn.querySelector('svg').setAttribute('fill', 'none');
           removeHighlightForWord(originalText);
         } else {
-          await collectWord(originalText, translation, phonetic, existingNote);
+          await collectWord(originalText, translation, existingNote);
           collectBtn.classList.add('wp-collected');
           collectBtn.querySelector('svg').setAttribute('fill', 'currentColor');
           highlightWordInPage(originalText);
@@ -523,7 +539,6 @@
     popup.innerHTML = `
       <div class="wp-popup-header">
         <span class="wp-popup-word">${escapeHtml(entry.word)}</span>
-        ${entry.phonetic && settings.showPhonetic ? `<span class="wp-popup-phonetic">${escapeHtml(entry.phonetic)}</span>` : ''}
       </div>
       <div class="wp-popup-translation">${escapeHtml(entry.translation)}</div>
       <div class="wp-popup-note-display" ${existingNote ? '' : 'style="display:none"'} title="注释"><span class="wp-note-text">${escapeHtml(existingNote)}</span><button class="wp-note-delete" title="删除注释">×</button></div>
@@ -693,13 +708,12 @@
     });
   }
 
-  async function collectWord(word, translation, phonetic, note) {
+  async function collectWord(word, translation, note) {
     return new Promise((resolve) => {
       chrome.runtime.sendMessage({
         type: 'addWord',
         word,
         translation,
-        phonetic: phonetic || '',
         sourceUrl: window.location.href,
         note: note || ''
       }, () => resolve());
@@ -835,6 +849,23 @@
       const textNode = document.createTextNode(el.textContent);
       el.parentNode.replaceChild(textNode, el);
     });
+  }
+
+  // --- Observe DOM changes (async / SPA content) ---
+  // Pages that load content after the initial render (async fetch, SPA routing)
+  // need a re-scan when new nodes appear. Debounced to keep the cost low.
+  // highlightWordInPage() skips already-wrapped nodes, so re-scans converge
+  // and never double-highlight.
+  function observeDomChanges() {
+    if (window.__wpMutationObserver) return;
+    const observer = new MutationObserver(() => {
+      if (window.__wpRescanTimer) clearTimeout(window.__wpRescanTimer);
+      window.__wpRescanTimer = setTimeout(() => {
+        if (settings.enabled) highlightCollectedWords();
+      }, 500);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    window.__wpMutationObserver = observer;
   }
 
   async function getCollectedWords() {
